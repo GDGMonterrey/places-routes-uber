@@ -1,4 +1,4 @@
-var map;
+var map, markerOrigen, markerDestino;
 
 function initMap() {
 	
@@ -10,32 +10,51 @@ function initMap() {
 	var origenInput = document.getElementById('origen');
 	var destinoInput = document.getElementById('destino');
 
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(origenInput);
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinoInput);
-  
-  var autocompleteOrigen = new google.maps.places.Autocomplete(origenInput);
-  autocompleteOrigen.bindTo('bounds', map);
+	map.controls[google.maps.ControlPosition.TOP_LEFT].push(origenInput);
+	map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinoInput);
+	
+	var autocompleteOrigen = new google.maps.places.Autocomplete(origenInput);
+	autocompleteOrigen.bindTo('bounds', map);
 
-  var autocompleteDestino = new google.maps.places.Autocomplete(destinoInput);
-  autocompleteDestino.bindTo('bounds', map);
+	var autocompleteDestino = new google.maps.places.Autocomplete(destinoInput);
+	autocompleteDestino.bindTo('bounds', map);
 
-  autocompleteOrigen.addListener('place_changed', function() {
+	autocompleteOrigen.addListener('place_changed', function() {
 
-    var place = autocompleteOrigen.getPlace();
-    
-    console.log(place);
+		var place = autocompleteOrigen.getPlace();
+		
+		console.log(place);
 
-    var location = place && place.geometry && place.geometry.location;
-    
-  });
+		var location = place && place.geometry && place.geometry.location;
+		
+		if (location)
+			if (!markerOrigen)
+				markerOrigen = new google.maps.Marker({
+					position: location,
+					animation: google.maps.Animation.DROP,
+					map: map
+				});
+			else
+				markerOrigen.setPosition(location);
+	});
 
-  autocompleteDestino.addListener('place_changed', function() {
-    
-    var place = autocompleteDestino.getPlace();
-    
-    console.log(place);
+	autocompleteDestino.addListener('place_changed', function() {
+		
+		var place = autocompleteDestino.getPlace();
+		
+		console.log(place);
 
-    var location = place && place.geometry && place.geometry.location;
-    
-  });
+		var location = place && place.geometry && place.geometry.location;
+		
+		if (location)
+			if (!markerDestino)
+				markerDestino = new google.maps.Marker({
+					position: location,
+					animation: google.maps.Animation.DROP,
+					map: map
+				});
+			else
+				markerDestino.setPosition(location);
+				
+	});
 }
