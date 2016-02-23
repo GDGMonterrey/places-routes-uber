@@ -1,9 +1,10 @@
-var map, markerOrigen, markerDestino, directionsService, directionsDisplay;
+var map, markerOrigen, markerDestino, directionsService, directionsDisplay, uberServerToken;
 function initMap() {
 	
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: 25.657071, lng: -100.366366},
-		zoom: 13
+		zoom: 13,
+		disableDefaultUI : true
 	});
 
 	directionsService = new google.maps.DirectionsService;
@@ -14,8 +15,14 @@ function initMap() {
 	var origenInput = document.getElementById('origen');
 	var destinoInput = document.getElementById('destino');
 
+	var uberDetails = document.getElementById('uberDetails');
+
+	uberDetails.innerHTML = "<h2>Uber Info</h2>";
+
 	map.controls[google.maps.ControlPosition.TOP_LEFT].push(origenInput);
 	map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinoInput);
+
+	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(uberDetails);
 	
 	var autocompleteOrigen = new google.maps.places.Autocomplete(origenInput);
 	autocompleteOrigen.bindTo('bounds', map);
@@ -77,8 +84,42 @@ function showRoute() {
     if (status === google.maps.DirectionsStatus.OK) {
       console.log(response);
       directionsDisplay.setDirections(response);
+      getEstimadePrice();
     } else {
       console.log(status);
     }
   });
+}
+
+function getEstimadePrice () {
+	var origen = markerOrigen.getPosition();
+	var destino = markerDestino.getPosition();
+	$.ajax({
+		url: "https://api.uber.com/v1/estimates/price",
+		headers: {
+			Authorization: "Token " + uberServerToken
+		},
+		data: {
+			start_latitude: origen.lat(),
+			start_longitude: origen.lng(),
+			end_latitude: destino.lat(),
+			end_longitude:  destino.lng()
+		},
+		success: function(result) {
+			displayUberInfo(result);
+		}
+	});
+}
+
+function displayUberInfo (result) {
+	var uberDetails = document.getElementById('uberDetails');
+	info = "";
+	var prices = result.prices;
+	for(var i in prices){
+		info += "<h4>"+ prices[i].display_name + "</h4>";
+		info += "<label class='detail'><b>Distancia</b>"+ prices[i].distance + "</label>";
+		info += "<label class='detail'><b>Duración</b>"+ prices[i].duration + "</label>";
+		info += "<label class='detail'><b>Costo estimado</b>"+ prices[i].estimate + "</label>";
+	}
+	uberDetails.innerHTML = info;
 }
