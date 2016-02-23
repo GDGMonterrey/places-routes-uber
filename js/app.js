@@ -1,11 +1,15 @@
-var map, markerOrigen, markerDestino;
-
+var map, markerOrigen, markerDestino, directionsService, directionsDisplay;
 function initMap() {
 	
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: 25.657071, lng: -100.366366},
 		zoom: 13
 	});
+
+	directionsService = new google.maps.DirectionsService;
+  directionsDisplay = new google.maps.DirectionsRenderer({ markerOptions: { visible: false} });
+
+  directionsDisplay.setMap(map);
 
 	var origenInput = document.getElementById('origen');
 	var destinoInput = document.getElementById('destino');
@@ -36,6 +40,8 @@ function initMap() {
 				});
 			else
 				markerOrigen.setPosition(location);
+
+		showRoute();
 	});
 
 	autocompleteDestino.addListener('place_changed', function() {
@@ -56,5 +62,23 @@ function initMap() {
 			else
 				markerDestino.setPosition(location);
 				
+		showRoute();
 	});
+}
+
+function showRoute() {
+  if (!markerDestino || !markerOrigen)
+  	return;
+  directionsService.route({
+    origin: markerOrigen.getPosition(),
+    destination: markerDestino.getPosition(),
+    travelMode: google.maps.TravelMode.DRIVING
+  }, function(response, status) {
+    if (status === google.maps.DirectionsStatus.OK) {
+      console.log(response);
+      directionsDisplay.setDirections(response);
+    } else {
+      console.log(status);
+    }
+  });
 }
