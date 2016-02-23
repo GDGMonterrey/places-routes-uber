@@ -6,6 +6,22 @@ html, body {
 #map {
 	height: 100%;
 }
+
+#uberDetails {
+	width: 20%;
+	height: 80%;
+	background-color: #fff;
+	font-family: Roboto;
+  font-size: 10px;
+  font-weight: 300;
+  margin-right: 12px;
+  text-align: center;
+
+}
+.detail{
+	display: block;
+	width: 100%
+}
 .inputs {
   margin-top: 10px;
   border: 1px solid transparent;
